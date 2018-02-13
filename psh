@@ -2,6 +2,8 @@
 
 # psh -- parallel shells
 
+# TODO: consider option for `mosh` rather than `ssh`
+
 psh () {
     local command=
     local debug=
@@ -66,6 +68,49 @@ psh () {
             else
                 tmux new-window -c $HOME -d -n "$title" ssh -t $machine "$command"
             fi
+        elif [ "$TERM_PROGRAM" == "iTerm.app" ] ; then
+            # create new window?
+            # create new tab?
+            # create new pane (iTerm session)?
+            # ssh
+
+            # more than one host?
+            # create new window for everything, or create new tab for everything together, or create new tab for each host?
+            # if create new window for everything, do we create new tab, or split tab into grid for each host?
+            # if create new tab for everything, split tab into grid for each host.
+            # if create new tab for each host seperate
+
+
+            osascript \
+                -e 'tell application "iTerm2"' \
+                -e "  create window with default profile command \"ssh -t $machine \\\"$command\\\"\"" \
+                -e 'end tell'
+
+
+            # if [ -n "$pane"] ; then
+            #     # create new window and fill with a bunch of panes (need to name it with osascript)
+            #     osascript \
+                #         -e 'tell application "iTerm2"' \
+                #         -e '  create window with default profile' \
+                #         -e 'end tell'
+            # else
+            #     # create new window for each $machine
+            #     osascript \
+                #         -e 'tell application "iTerm2"' \
+                #         -e '  create window with default profile' \
+                #         -e '  tell current window' \
+                #         -e '    create tab with default profile' \
+                #         -e "    do script \"ssh -t $machine \\\"$command\\\"\" in front window" \
+                #         -e '  end tell' \
+                #         -e 'end tell'
+            # fi
+
+            # osascript \
+                #     -e "tell application \"iTerm2\"" \
+                #     -e "tell application \"System Events\" to keystroke \"t\" using {command down}" \
+                #     -e "tell application \"iTerm2\" to tell session -1 of current terminal to write text \"ssh -t $machine \\\"$command\\\"\"" \
+                #     -e "end tell" > /dev/null
+
         elif [ "$TERM" == "screen" ] ; then
             screen -t "$title" ssh -t $machine "$command"
         elif [ "$TERM_PROGRAM" == "Apple_Terminal" ] ; then
@@ -73,12 +118,6 @@ psh () {
                 -e "tell application \"Terminal\"" \
                 -e "tell application \"System Events\" to keystroke \"t\" using {command down}" \
                 -e "do script \"ssh -t $machine \\\"$command\\\"\" in front window" \
-                -e "end tell" > /dev/null
-        elif [ "$TERM_PROGRAM" == "iTerm.app" ] ; then
-            osascript \
-                -e "tell application \"iTerm\"" \
-                -e "tell application \"System Events\" to keystroke \"t\" using {command down}" \
-                -e "tell application \"iTerm\" to tell session -1 of current terminal to write text \"ssh -t $machine \\\"$command\\\"\"" \
                 -e "end tell" > /dev/null
         else
             ssh -t $machine "$command"
